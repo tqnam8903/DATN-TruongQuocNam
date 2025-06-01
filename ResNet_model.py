@@ -58,7 +58,6 @@ train_dir = 'E:/DATN/Dataset_kaggle/RiceLeafsDisease/train'
 val_dir = 'E:/DATN/Dataset_kaggle/RiceLeafsDisease/validation'
 label_stats(train_dir)
 label_stats(val_dir)
-
 train_data = load_img_paths(train_dir)
 val_data = load_img_paths(val_dir)
 
@@ -112,7 +111,8 @@ model = Sequential([
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-checkpoint = ModelCheckpoint('resnet50.h5', monitor='val_accuracy', save_best_only=True, verbose=1)
+file_path = "resnet50.h5"
+checkpoint = ModelCheckpoint(file_path, monitor = "val_loss", save_best_only = True, save_weights_only = False, verbose = 1)
 early_stop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True, verbose=1)
 
 # Huấn luyện mô hình
