@@ -157,7 +157,7 @@ model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = [
 model.summary()
 
 # Xây dựng Checkpoint
-file_path = "riceleafsdisease_classification_model_checkpoint.h5"
+file_path = "cnn.h5"
 checkpoint = ModelCheckpoint(file_path, monitor = "val_loss", save_best_only = True, save_weights_only = False, verbose = 1)
 
 # Dừng huấn luyện nếu val_loss không cải thiện sau 5 epoch liên tiếp
