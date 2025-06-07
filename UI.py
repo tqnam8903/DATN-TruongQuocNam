@@ -113,9 +113,9 @@ logo_label.pack()
 info_frame = tk.Frame(header_frame, bg="white")
 info_frame.grid(row=0, column=1, sticky="e", padx=10)
 tk.Label(info_frame, text='RICE LEAF DISEASE CLASSIFICATION', font=("Arial", 20, "bold"), bg="white").pack(anchor="center", pady=(0, 8))
-tk.Label(info_frame, text="Họ và tên: Nguyễn Văn A", font=("Arial", 12, "bold"), bg="white").pack(anchor="e")
-tk.Label(info_frame, text="Lớp: CNTT", font=("Arial", 12, "bold"), bg="white").pack(anchor="e")
-tk.Label(info_frame, text="MSV: 123456789", font=("Arial", 12, "bold"), bg="white").pack(anchor="e")
+tk.Label(info_frame, text="Họ và tên: Trương Quốc Nam", font=("Arial", 12, "bold"), bg="white").pack(anchor="e")
+tk.Label(info_frame, text="Lớp: 63CNTT2", font=("Arial", 12, "bold"), bg="white").pack(anchor="e")
+tk.Label(info_frame, text="MSV: 2151060299", font=("Arial", 12, "bold"), bg="white").pack(anchor="e")
 
 # Middle
 middle_frame = tk.Frame(root, bg="white")
