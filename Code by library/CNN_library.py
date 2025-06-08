@@ -194,7 +194,7 @@ class_names = list(test_img.class_indices.keys())
 
 # Classification Report
 report = classification_report(true_labels, pred_labels, target_names=class_names)
-print("📄 Classification Report:\n")
+print("Classification Report:\n")
 print(report)
 
 # Confusion Matrix

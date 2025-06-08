@@ -7,6 +7,7 @@ import traceback
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.applications.resnet50 import preprocess_input
+from tkinter import messagebox
 
 # Load mô hình ResNet và CNN
 resnet_model = load_model("resnet50.h5")
@@ -29,14 +30,12 @@ def browser_img():
 
 def detect_disease():
     if not current_image_path:
-        disease_result.set("Vui lòng chọn ảnh.")
+        messagebox.showwarning("Thiếu ảnh","Vui lòng lựa chọn ảnh để dự đoán")
         return
-    
     selected_model = model_choice.get()
     if not selected_model:
-        disease_result.set("Vui lòng chọn mô hình.")
+        messagebox.showwarning("Thiếu mô hình", "Vui lòng lựa chọn mô hình để dự đoán")
         return
-
     try:
         img = Image.open(current_image_path).resize((224, 224))
 
@@ -44,27 +43,22 @@ def detect_disease():
         img_resnet = img_to_array(img)
         img_resnet = preprocess_input(img_resnet)
         img_resnet = np.expand_dims(img_resnet, axis=0)
-
         # CNN Tiền xử lý
         img_cnn = img_to_array(img) / 255.0
         img_cnn = np.expand_dims(img_cnn, axis=0)
-
         result_text = ""
-
-        if selected_model == "ResNet50 only":
+        if selected_model == "ResNet50 Model":
             resnet_pred = resnet_model.predict(img_resnet)
             resnet_label = np.argmax(resnet_pred)
             result_text = f"ResNet: {class_labels[resnet_label]}"
-
-        elif selected_model == "CNN only":
+        elif selected_model == "CNN Model":
             cnn_pred = cnn_model.predict(img_cnn)
             cnn_label = np.argmax(cnn_pred)
             result_text = f"CNN: {class_labels[cnn_label]}"
-
         disease_result.set(result_text)
     except Exception as e:
         traceback.print_exc()
-        disease_result.set("Lỗi: Không thể dự đoán.")
+        messagebox.showwarning("Lỗi: Không thể dự đoán.")
 
 def reset():
     global current_image_path
@@ -77,7 +71,7 @@ def reset():
 def exit():
     root.quit()
 
-# UI setup
+# Khởi tạo cửa sổ
 root = tk.Tk()
 root.title("Rice Leaf Disease Classification")
 root.configure(bg="white")
