@@ -1,11 +1,8 @@
-# Cấu hình môi trường
-# Tắt thông báo đến từ tensorflow 
 import os
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["TERM"] = "dumb"
 
-# Xử lý dữ liệu
 import cv2
 import numpy as np
 import pandas as pd
@@ -14,7 +11,6 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 
-# TensorFlow & Keras 
 import tensorflow as tf
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -23,12 +19,12 @@ from tensorflow.keras.layers import (
     Flatten, Dense, Dropout, Add, ZeroPadding2D,
     BatchNormalization, Activation
 )
+from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, CSVLogger
 from tensorflow.keras.initializers import glorot_uniform
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.applications.resnet50 import preprocess_input
 
-# Hàm hỗ trợ
 def load_img_paths(base_dir):
     data = []
     for label in os.listdir(base_dir):
@@ -51,7 +47,6 @@ def label_stats(dir_path):
         label_counts[label] = count
     return label_counts
 
-# Cấu hình dữ liệu
 BATCH_SIZE = 32
 TARGET_SIZE = (224, 224)
 train_dir = 'E:/DATN/Dataset_kaggle/RiceLeafsDisease/train'
@@ -61,7 +56,6 @@ label_stats(val_dir)
 train_data = load_img_paths(train_dir)
 val_data = load_img_paths(val_dir)
 
-# Gộp và chia dữ liệu
 df = pd.DataFrame(train_data + val_data)
 train_df, temp_df = train_test_split(df, test_size=0.3, stratify=df['label'], random_state=42)
 val_df, test_df = train_test_split(temp_df, test_size=0.5, stratify=temp_df['label'], random_state=42)
@@ -69,11 +63,13 @@ val_df, test_df = train_test_split(temp_df, test_size=0.5, stratify=temp_df['lab
 train_gen = ImageDataGenerator(
     preprocessing_function=preprocess_input,
     rotation_range=40,
-    zoom_range=0.2,
+    zoom_range=(0.8, 1.2),
     width_shift_range=0.2,
     height_shift_range=0.2,
     shear_range=0.2,
     horizontal_flip=True,
+    brightness_range=(0.8, 1.2),
+    channel_shift_range=10,
     fill_mode='nearest'
 )
 val_gen = ImageDataGenerator(preprocessing_function=preprocess_input)
@@ -94,10 +90,9 @@ test_img = test_gen.flow_from_dataframe(
     batch_size=BATCH_SIZE, class_mode='categorical', shuffle=False
 )
 
-# Xây dựng mô hình ResNet
 base_model = ResNet50(include_top=False, weights='imagenet', input_shape=(224, 224, 3))
 base_model.trainable = True
-for layer in base_model.layers[:-30]:
+for layer in base_model.layers[:-50]:
     layer.trainable = False
 
 model = Sequential([
@@ -109,13 +104,12 @@ model = Sequential([
     Dense(total_classes, activation='softmax')
 ])
 
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer = Adam(learning_rate=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
 
 file_path = "resnet50.h5"
 checkpoint = ModelCheckpoint(file_path, monitor = "val_loss", save_best_only = True, save_weights_only = False, verbose = 1)
 early_stop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True, verbose=1)
 
-# Huấn luyện mô hình
 history = model.fit(
     train_img,
     validation_data=val_img,
@@ -124,7 +118,6 @@ history = model.fit(
     verbose=1
 )
 
-# Vẽ biểu đồ
 plt.plot(history.history['accuracy'], label='Training accuracy', color='blue')
 plt.plot(history.history['val_accuracy'], label='Validation accuracy', color='red')
 plt.title('Training and validation accuracy')
@@ -143,7 +136,6 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
-# Đánh giá 
 pred_prob = model.predict(test_img)
 pred_labels = np.argmax(pred_prob, axis=1)
 true_labels = test_img.classes
